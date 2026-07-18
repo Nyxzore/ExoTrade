@@ -18,33 +18,60 @@ class MainHostActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainHostBinding
     
-    private val browseListingsFragment = BrowseListingsFragment()
-    private val createListingFragment = CreateListingFragment()
-    private val inboxFragment = InboxFragment()
-    private val profileFragment = ProfileFragment()
+    private var browseListingsFragment: BrowseListingsFragment? = null
+    private var createListingFragment: CreateListingFragment? = null
+    private var inboxFragment: InboxFragment? = null
+    private var profileFragment: ProfileFragment? = null
 
-    private var currentFragment: Fragment = browseListingsFragment
+    private var currentFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainHostBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupFragments()
+        restoreFragments()
         setupBottomNavigation()
         setupOnBackPressed()
         
         handleIntent(intent)
     }
 
-    private fun setupFragments() {
+    private fun restoreFragments() {
         val fm = supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, profileFragment, "tab_profile").hide(profileFragment)
-            .add(R.id.fragmentContainer, createListingFragment, "tab_add").hide(createListingFragment)
-            .add(R.id.fragmentContainer, inboxFragment, "tab_messages").hide(inboxFragment)
-            .add(R.id.fragmentContainer, browseListingsFragment, "tab_home")
-            .commit()
+        browseListingsFragment = fm.findFragmentByTag("tab_home") as? BrowseListingsFragment
+        inboxFragment = fm.findFragmentByTag("tab_messages") as? InboxFragment
+        createListingFragment = fm.findFragmentByTag("tab_add") as? CreateListingFragment
+        profileFragment = fm.findFragmentByTag("tab_profile") as? ProfileFragment
+
+        if (browseListingsFragment == null) {
+            browseListingsFragment = BrowseListingsFragment()
+            inboxFragment = InboxFragment()
+            createListingFragment = CreateListingFragment()
+            profileFragment = ProfileFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, profileFragment!!, "tab_profile").hide(profileFragment!!)
+                .add(R.id.fragmentContainer, createListingFragment!!, "tab_add").hide(createListingFragment!!)
+                .add(R.id.fragmentContainer, inboxFragment!!, "tab_messages").hide(inboxFragment!!)
+                .add(R.id.fragmentContainer, browseListingsFragment!!, "tab_home")
+                .commit()
+            currentFragment = browseListingsFragment
+        } else {
+            // All fragments restored from FM. Find which one was visible, or default to home.
+            currentFragment = listOf(browseListingsFragment, inboxFragment, createListingFragment, profileFragment)
+                .find { it?.isHidden == false } ?: browseListingsFragment
+            
+            // Ensure bottom nav matches the restored visible fragment
+            val selectedId = when (currentFragment) {
+                browseListingsFragment -> R.id.nav_home
+                inboxFragment -> R.id.nav_messages
+                createListingFragment -> R.id.nav_add
+                profileFragment -> R.id.nav_profile
+                else -> R.id.nav_home
+            }
+            binding.bottomNavigation.selectedItemId = selectedId
+        }
     }
 
     private fun setupBottomNavigation() {
@@ -55,19 +82,19 @@ class MainHostActivity : BaseActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    switchToFragment(browseListingsFragment)
+                    browseListingsFragment?.let { switchToFragment(it) }
                     true
                 }
                 R.id.nav_messages -> {
-                    switchToFragment(inboxFragment)
+                    inboxFragment?.let { switchToFragment(it) }
                     true
                 }
                 R.id.nav_add -> {
-                    switchToFragment(createListingFragment)
+                    createListingFragment?.let { switchToFragment(it) }
                     true
                 }
                 R.id.nav_profile -> {
-                    switchToFragment(profileFragment)
+                    profileFragment?.let { switchToFragment(it) }
                     true
                 }
                 R.id.nav_admin -> {
@@ -82,10 +109,9 @@ class MainHostActivity : BaseActivity() {
     private fun switchToFragment(target: Fragment) {
         if (currentFragment == target) return
         
-        supportFragmentManager.beginTransaction()
-            .hide(currentFragment)
-            .show(target)
-            .commit()
+        val transaction = supportFragmentManager.beginTransaction()
+        currentFragment?.let { transaction.hide(it) }
+        transaction.show(target).commit()
         currentFragment = target
     }
 

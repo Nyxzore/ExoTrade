@@ -72,7 +72,6 @@ class EditListing : BaseActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        binding.bottomNavigation.visibility = View.GONE
         binding.toggleListingType.visibility = View.GONE
 
         binding.btnAddImage.setOnClickListener { imagePickerLauncher.launch("image/*") }

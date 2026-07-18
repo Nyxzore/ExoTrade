@@ -7,8 +7,6 @@ import com.example.exotrade.R
 import com.example.exotrade.activities.MainHostActivity
 import com.example.exotrade.activities.admin.AdminActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -76,10 +74,6 @@ object NavigationHelper {
             
             activity.startActivity(intent)
             activity.overridePendingTransition(0, 0) 
-
-            CoroutineScope(Dispatchers.Main).launch {
-                ExoTradeApplication.container.speciesRepository.syncFromServer(false)
-            }
 
             true
         }
