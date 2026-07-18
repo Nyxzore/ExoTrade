@@ -53,8 +53,14 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Crypto
-    implementation(libs.lazysodium.android)
-    implementation(libs.jna)
+    implementation(libs.lazysodium.android) {
+        exclude(group = "net.java.dev.jna", module = "jna")
+    }
+    implementation(libs.jna) {
+        artifact {
+            type = "aar"
+        }
+    }
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
