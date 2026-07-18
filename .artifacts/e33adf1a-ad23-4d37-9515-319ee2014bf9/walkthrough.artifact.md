@@ -20,6 +20,7 @@ The following endpoints have been implemented in Go and registered in `main.go`:
 - `POST /listings/update_listing.php` -> `handlers.UpdateListing`
 - `POST /listings/delete_listing.php` -> `handlers.DeleteListing`
 - `GET/POST /listings/get_listing_details.php` -> `handlers.GetListingDetails`
+- `GET /listings/get_all_species.php` -> `handlers.GetAllSpecies` (New: Provides detailed species info from joined `taxa` and `spiders` tables)
 
 ### Breeding Domain
 - `POST /breeding/create_breeding_listing.php` -> `handlers.CreateBreedingListing`
@@ -56,7 +57,10 @@ The following endpoints have been implemented in Go and registered in `main.go`:
 - **[helpers.go](file:///home/nyxzore/AndroidStudioProjects/exotrade/server/pkg/utils/helpers.go)**: Added `IsValidEmail` and `FormatAge` helpers.
 - **[db.go](file:///home/nyxzore/AndroidStudioProjects/exotrade/server/internal/db/db.go)**: Expanded `PgxPool` interface to include `Begin` for transactions.
 
-## Verification Results
+## Routing & Static Assets
+
+- **Conflict Resolution**: Fixed a Gin routing panic caused by overlapping wildcard static routes and specific `.php` endpoints. I replaced the broad `r.Static` calls with a `NoRoute` fallback that serves static assets from `./listings`, `./profile_pics`, and `./downloads` only if they exist on disk and aren't caught by API handlers.
+- **Support for Both Methods**: Standardized handlers like `GetListingDetails` and `GetMessages` to support both `GET` and `POST` as used by different parts of the Android client.
 
 ### Automated Tests
 - Ran `go test ./...` in the `server/` directory.

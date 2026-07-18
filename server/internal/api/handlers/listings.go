@@ -359,3 +359,43 @@ func GetListingDetails(c *gin.Context) {
 		"common_name":       displayCommonName,
 	})
 }
+
+func GetAllSpecies(c *gin.Context) {
+	query := `
+        SELECT s.speciesId as id,
+               TRIM(CONCAT_WS(' ', t.genus, t.species, t.subspecies)) as scientificName,
+               t.common_name as commonName,
+               s.family,
+               t.species_lsid as speciesLsid
+        FROM taxa t
+        JOIN spiders s ON t.species_lsid = s.species_lsid`
+
+	rows, err := db.Pool.Query(context.Background(), query)
+	if err != nil {
+		utils.SendError(c, http.StatusInternalServerError, "Failed to fetch species", nil)
+		return
+	}
+	defer rows.Close()
+
+	speciesList := []map[string]any{}
+	for rows.Next() {
+		var id int
+		var scientificName, speciesLsid string
+		var commonName, family *string
+
+		if err := rows.Scan(&id, &scientificName, &commonName, &family, &speciesLsid); err != nil {
+			continue
+		}
+
+		speciesList = append(speciesList, map[string]any{
+			"id":             id,
+			"scientificName": scientificName,
+			"commonName":     commonName,
+			"family":         family,
+			"order":          "Araneae",
+			"speciesLsid":    speciesLsid,
+		})
+	}
+
+	utils.SendSuccess(c, "Species fetched", map[string]any{"species": speciesList})
+}

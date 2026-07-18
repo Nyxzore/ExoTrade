@@ -5,7 +5,10 @@ import (
 	"exotrade-server/internal/api/middleware"
 	"exotrade-server/internal/db"
 	"log"
+	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -25,18 +28,13 @@ func main() {
 
 	r := gin.Default()
 
-	// Static files for images and downloads
-	r.Static("/listings", "./listings")
-	r.Static("/profile_pics", "./profile_pics")
-	r.Static("/downloads", "./downloads")
+	// Legacy Static Page
+	r.StaticFile("/get-app.php", "./get-app.html")
 	r.StaticFile("/exotrade-api-docs.html", "./exotrade-api-docs.html")
 
 	// API Routes
 	api := r.Group("/")
 	{
-		// Legacy Static Page
-		api.StaticFile("/get-app.php", "./get-app.html")
-
 		// Obsidian Graph (Public for now)
 		api.GET("/get_graph_data.php", handlers.GetGraphData)
 		api.GET("/get_note_content.php", handlers.GetNoteContent)
@@ -60,6 +58,7 @@ func main() {
 			protected.POST("/listings/delete_listing.php", handlers.DeleteListing)
 			protected.GET("/listings/get_listing_details.php", handlers.GetListingDetails)
 			protected.POST("/listings/get_listing_details.php", handlers.GetListingDetails)
+			protected.GET("/listings/get_all_species.php", handlers.GetAllSpecies)
 			protected.POST("/listings/get_all_listings.php", handlers.GetAllListings)
 			protected.POST("/breeding/create_breeding_listing.php", handlers.CreateBreedingListing)
 			protected.POST("/breeding/update_breeding_listing.php", handlers.UpdateBreedingListing)
@@ -100,6 +99,21 @@ func main() {
 			}
 		}
 	}
+
+	// Static files fallback (avoids wildcard conflicts)
+	r.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		for _, dir := range []string{"listings", "profile_pics", "downloads"} {
+			if strings.HasPrefix(path, "/"+dir+"/") {
+				file := filepath.Join(".", path)
+				if _, err := os.Stat(file); err == nil {
+					c.File(file)
+					return
+				}
+			}
+		}
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Route not found"})
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" {
