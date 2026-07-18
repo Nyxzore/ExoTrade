@@ -56,11 +56,7 @@ dependencies {
     implementation(libs.lazysodium.android) {
         exclude(group = "net.java.dev.jna", module = "jna")
     }
-    implementation(libs.jna) {
-        artifact {
-            type = "aar"
-        }
-    }
+    implementation("net.java.dev.jna:jna:5.17.0@aar")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
