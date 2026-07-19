@@ -66,6 +66,7 @@ class BrowseListingsFragment : Fragment() {
 
         setupUI()
         observeViewModel()
+        viewModel.refresh()
     }
 
     private fun setupUI() {

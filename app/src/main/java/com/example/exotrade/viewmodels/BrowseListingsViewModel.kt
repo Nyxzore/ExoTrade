@@ -1,5 +1,6 @@
 package com.example.exotrade.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exotrade.data.ApiService
@@ -51,28 +52,45 @@ class BrowseListingsViewModel(
     }
 
     private suspend fun fetchListings(overwrite: Boolean) {
-        val params = sessionRepository.authParams().toMutableMap()
-        params["offset"] = currentOffset.toString()
-        if (currentQuery.isNotEmpty()) {
-            params["search"] = currentQuery
-        }
-        
         try {
+            Log.d("BrowseListings", "Attempting to fetch listings. Offset: $currentOffset")
+
+            val params = sessionRepository.authParams().toMutableMap()
+            params["offset"] = currentOffset.toString()
+            if (currentQuery.isNotEmpty()) {
+                params["search"] = currentQuery
+            }
+
+            Log.d("BrowseListings", "Params built successfully, calling API...")
+
             val response: String = apiService.postForm("listings/get_all_listings", params)
+            Log.d("BrowseListings", "API Response received: $response")
+
             val root = Json.parseToJsonElement(response).jsonObject
             if (root["status"]?.toString()?.contains("success") == true) {
-                val data = root["listings"]?.jsonArray ?: return
+
+                // Falls back to checking inside a "data" object if the root array is null
+                val data = root["listings"]?.jsonArray ?: root["data"]?.jsonObject?.get("listings")?.jsonArray
+
+                if (data == null) {
+                    Log.e("BrowseListings", "Listings array was null in the JSON response")
+                    return
+                }
+
                 val newListings = data.map { json.decodeFromJsonElement<Listing>(it) }
-                
+
                 if (overwrite) {
                     _listings.value = newListings
                 } else {
-                    _listings.value = _listings.value + newListings
+                    _listings.value +=  newListings
                 }
                 currentOffset += newListings.size
+                Log.d("BrowseListings", "Successfully loaded ${newListings.size} listings")
+            } else {
+                Log.e("BrowseListings", "API returned non-success status: $response")
             }
         } catch (e: Exception) {
-            // Log error
+            Log.e("BrowseListings", "Failed to fetch listings: ${e.message}", e)
         }
     }
 }

@@ -39,7 +39,7 @@ func GetAllListings(c *gin.Context) {
                l.sex,
                l.status,
                l.listed_time,
-               u.subscription_tier,
+               COALESCE(u.subscription_tier, 0) as subscription_tier, -- FIX 1: Prevent NULL subscription tiers
                u.whatsapp,
                u.facebook,
                u.instagram,
@@ -55,8 +55,8 @@ func GetAllListings(c *gin.Context) {
                             ELSE 1
                         END)))
                / POWER(1 + COALESCE(ic.times_shown_recently, 0), 0.15))
-               * (CASE WHEN $2::text IS NOT NULL
-                       THEN (POWER(similarity(t.common_name, $2::text), 3) * 50.0 + 1.0)
+               * (CASE WHEN $2::text != '' -- FIX 2: Check for empty string instead of IS NOT NULL
+                       THEN (POWER(similarity(COALESCE(t.common_name, ''), $2::text), 3) * 50.0 + 1.0) -- FIX 3: Coalesce common_name to prevent similarity(NULL)
                        ELSE 1.0
                   END) as exposure_score
         FROM listings l
@@ -79,7 +79,7 @@ func GetAllListings(c *gin.Context) {
     randomized AS (
         SELECT *,
                (ABS(('x' || SUBSTR(MD5(id::text || $3), 1, 8))::bit(32)::integer)::double precision / 2147483647.0)
-               ^ (1.0 / exposure_score) as probability
+               ^ (1.0 / COALESCE(exposure_score, 1.0)) as probability -- FIX 4: Safety catch for probability math
         FROM scored
     )
     SELECT * FROM randomized
@@ -98,7 +98,6 @@ func GetAllListings(c *gin.Context) {
 	listings := []map[string]any{}
 	ids := []int64{}
 
-
 	for rows.Next() {
 		var (
 			id, subscriptionTier                                        int
@@ -114,6 +113,8 @@ func GetAllListings(c *gin.Context) {
 		if err := rows.Scan(&id, &sellerID, &sellerName, &scientificName, &commonName, &price,
 			&description, &imageURL, &sex, &status, &listedTime, &subscriptionTier,
 			&whatsapp, &facebook, &instagram, &exposureScore, &probability); err != nil {
+			// FIX 5: Print the error so you can see exactly which column is failing if it happens again
+			fmt.Printf("Row scan error for listing ID %d: %v\n", id, err)
 			continue
 		}
 
@@ -151,7 +152,6 @@ func GetAllListings(c *gin.Context) {
 
 	if len(ids) > 0 {
 		if err := db.LogImpressions(context.Background(), fmt.Sprintf("%v", userID), ids, "listing_impressions"); err != nil {
-			// Impression logging failure shouldn't fail the listings response
 		}
 	}
 
