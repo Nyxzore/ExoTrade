@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
 
 class BrowseListingsViewModel(
@@ -30,10 +31,12 @@ class BrowseListingsViewModel(
 
     fun refresh() {
         viewModelScope.launch {
+            isLoading.value = true
             isRefreshing.value = true
             currentOffset = 0
             fetchListings(true)
             isRefreshing.value = false
+            isLoading.value = false
         }
     }
 
@@ -67,7 +70,7 @@ class BrowseListingsViewModel(
             Log.d("BrowseListings", "API Response received: $response")
 
             val root = Json.parseToJsonElement(response).jsonObject
-            if (root["status"]?.toString()?.contains("success") == true) {
+            if (root["status"]?.jsonPrimitive?.content == "success") {
 
                 // Falls back to checking inside a "data" object if the root array is null
                 val data = root["listings"]?.jsonArray ?: root["data"]?.jsonObject?.get("listings")?.jsonArray
@@ -77,7 +80,14 @@ class BrowseListingsViewModel(
                     return
                 }
 
-                val newListings = data.map { json.decodeFromJsonElement<Listing>(it) }
+                val newListings = data.mapNotNull { 
+                    try {
+                        json.decodeFromJsonElement<Listing>(it)
+                    } catch (e: Exception) {
+                        Log.e("BrowseListings", "Failed to decode listing: ${it}", e)
+                        null
+                    }
+                }
 
                 if (overwrite) {
                     _listings.value = newListings

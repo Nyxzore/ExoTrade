@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/add_24px"
+        android:icon="@drawable/nav_home_icon"
         android:title="@string/all_listings" />
     <item
         android:id="@+id/nav_messages"
-        android:icon="@drawable/ic_chat_24"
+        android:icon="@drawable/nav_chat_icon"
         android:title="@string/whatsapp" />
     <item
         android:id="@+id/nav_add"
@@ -14,10 +14,10 @@
         android:title="@string/create_account" />
     <item
         android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_person_24"
+        android:icon="@drawable/nav_person_icon"
         android:title="@string/username" />
     <item
         android:id="@+id/nav_admin"
-        android:icon="@drawable/ic_admin_24"
+        android:icon="@drawable/nav_admin_icon"
         android:title="@string/login" />
 </menu>

@@ -143,7 +143,7 @@ class Profile : BaseActivity() {
                         val l = element.jsonObject
                         allFetchedListings.add(
                             Listing(
-                                id = l["id"]?.jsonPrimitive?.content ?: "",
+                                id = l["id"]?.jsonPrimitive?.int ?: 0,
                                 commonName = l["common_name"]?.jsonPrimitive?.content,
                                 scientificName = l["scientific_name"]?.jsonPrimitive?.content,
                                 price = l["price"]?.jsonPrimitive?.content,

@@ -150,7 +150,7 @@ class BreedingFeed : AppCompatActivity() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.title.toString()) {
-                "Delete" -> deleteListing(listing.id ?: "")
+                "Delete" -> deleteListing(listing.id.toString())
                 "WhatsApp Seller" -> SocialLinkUtils.openWhatsApp(this, listing.whatsapp)
                 "View Seller Profile" -> {
                     val intent = Intent(this, com.example.exotrade.activities.profile.Profile::class.java)
@@ -159,7 +159,7 @@ class BreedingFeed : AppCompatActivity() {
                 }
                 "Share" -> ShareUtils.shareListingAsImage(
                     this,
-                    listing.id ?: "",
+                    listing.id.toString(),
                     listing.commonName,
                     listing.scientificName,
                     listing.price,
@@ -171,7 +171,7 @@ class BreedingFeed : AppCompatActivity() {
                     listing.facebook,
                     listing.instagram
                 )
-                "Report" -> ReportDialog.show(this, "breeding", listing.id ?: "", null)
+                "Report" -> ReportDialog.show(this, "breeding", listing.id.toString(), null)
             }
             true
         }
@@ -236,7 +236,7 @@ class BreedingFeed : AppCompatActivity() {
                     arr.forEach { element ->
                         val l = element.jsonObject
                         list.add(Listing(
-                            id = l["id"]?.jsonPrimitive?.content ?: "",
+                            id = l["id"]?.jsonPrimitive?.int ?: 0,
                             commonName = l["common_name"]?.jsonPrimitive?.content,
                             scientificName = l["scientific_name"]?.jsonPrimitive?.content,
                             price = l["price"]?.jsonPrimitive?.content, 

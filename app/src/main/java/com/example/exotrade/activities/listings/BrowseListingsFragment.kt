@@ -153,7 +153,7 @@ class BrowseListingsFragment : Fragment() {
 
     private fun showListingMenu(listing: Listing, view: View) {
         val popup = PopupMenu(requireContext(), view)
-        val isOwner = session.getUserUUID() != null && session.getUserUUID() == listing.sellerId
+        val isOwner = session.getUserUUID() != null && session.getUserUUID()?.equals(listing.sellerId, ignoreCase = true) == true
 
         if (isOwner) {
             popup.menu.add("Edit")
@@ -171,7 +171,7 @@ class BrowseListingsFragment : Fragment() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.title.toString()) {
-                "Delete" -> listing.id.let { deleteListing(it) }
+                "Delete" -> deleteListing(listing.id.toString())
                 "Edit" -> {
                     val intent = Intent(requireContext(), EditListing::class.java)
                     intent.putExtra("listing_id", listing.id)
@@ -184,12 +184,12 @@ class BrowseListingsFragment : Fragment() {
                     startActivity(intent)
                 }
                 "Share" -> ShareUtils.shareListingAsImage(
-                    requireActivity(), listing.id, listing.commonName, listing.scientificName,
+                    requireActivity(), listing.id.toString(), listing.commonName, listing.scientificName,
                     listing.price, listing.description, listing.imageUrl,
                     "sold" == listing.status, "sale", listing.whatsapp,
                     listing.facebook, listing.instagram
                 )
-                "Report" -> ReportDialog.show(requireContext(), "listing", listing.id ?: "", null)
+                "Report" -> ReportDialog.show(requireContext(), "listing", listing.id.toString(), null)
             }
             true
         }

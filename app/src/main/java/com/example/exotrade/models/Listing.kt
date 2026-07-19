@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Listing(
-    val id: String,
-    val commonName: String? = null,
-    val scientificName: String? = null,
+    val id: Int,
+    @SerialName("common_name") val commonName: String? = null,
+    @SerialName("scientific_name") val scientificName: String? = null,
     val price: String? = null,
     val description: String? = null,
     @SerialName("image_url") val imageUrl: String? = null,

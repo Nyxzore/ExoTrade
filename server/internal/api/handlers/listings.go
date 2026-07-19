@@ -297,11 +297,11 @@ func GetListingDetails(c *gin.Context) {
 	}
 
 	query := `
-        SELECT l.*,
+        SELECT l.id, l.seller_id, l.species_lsid, l.price, l.description, l.image_url, l.sex, l.status, l.listed_time, l.age, l.size_in_cm,
                u.username as seller_name,
                u.subscription_tier,
                u.whatsapp, u.facebook, u.instagram,
-               t.genus, t.species, t.common_name
+               t.genus, t.species, t.subspecies, t.common_name, t.distribution
         FROM listings l
         JOIN users u ON l.seller_id = u.id
         JOIN taxa t ON l.species_lsid = t.species_lsid
@@ -314,23 +314,26 @@ func GetListingDetails(c *gin.Context) {
 		sellerID, speciesLSID, sellerName                  string
 		desc, imageURL                                     *string
 		sex, status, genus, species                        string
-		whatsapp, facebook, instagram, commonName          *string
+		subspecies                                         *string
+		whatsapp, facebook, instagram, commonName, distrib *string
 		price                                              *float64
 		listedTime                                         time.Time
+		age, sizeInCm                                      *int
 	)
 
-	err := row.Scan(&id, &sellerID, &speciesLSID, &price, &desc, &imageURL, &sex, &status, &listedTime,
-		&sellerName, &subscriptionTier, &whatsapp, &facebook, &instagram, &genus, &species, &commonName)
+	err := row.Scan(&id, &sellerID, &speciesLSID, &price, &desc, &imageURL, &sex, &status, &listedTime, &age, &sizeInCm,
+		&sellerName, &subscriptionTier, &whatsapp, &facebook, &instagram, &genus, &species, &subspecies, &commonName, &distrib)
 
 	if err != nil {
+		fmt.Printf("Database error in GetListingDetails: %v\n", err)
 		utils.SendError(c, http.StatusNotFound, "Listing not found", nil)
 		return
 	}
 
-	// Log impression
 	db.LogImpressions(context.Background(), fmt.Sprintf("%v", userID), []int64{int64(id)}, "listing_impressions")
 
-	displayCommonName := genus + " " + species
+	scientificName := strings.TrimSpace(fmt.Sprintf("%s %s %s", genus, species, utils.DerefString(subspecies)))
+	displayCommonName := scientificName
 	if commonName != nil && *commonName != "" {
 		displayCommonName = *commonName
 	}
@@ -351,6 +354,9 @@ func GetListingDetails(c *gin.Context) {
 		"image_url":         imageURL,
 		"sex":               sex,
 		"status":            status,
+		"listing_status":    status,
+		"age":               age,
+		"size_in_cm":        sizeInCm,
 		"listed_time":       listedTime,
 		"subscription_tier": subscriptionTier,
 		"whatsapp":          whatsapp,
@@ -358,7 +364,10 @@ func GetListingDetails(c *gin.Context) {
 		"instagram":         instagram,
 		"genus":             genus,
 		"species":           species,
+		"subspecies":        subspecies,
+		"scientific_name":   scientificName,
 		"common_name":       displayCommonName,
+		"distribution":      distrib,
 	})
 }
 

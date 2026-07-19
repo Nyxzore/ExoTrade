@@ -164,7 +164,7 @@ class ProfileFragment : Fragment() {
                         val l = element.jsonObject
                         allFetchedListings.add(
                             Listing(
-                                id = l["id"]?.jsonPrimitive?.content ?: "",
+                                id = l["id"]?.jsonPrimitive?.int ?: 0,
                                 commonName = l["common_name"]?.jsonPrimitive?.content,
                                 scientificName = l["scientific_name"]?.jsonPrimitive?.content,
                                 price = l["price"]?.jsonPrimitive?.content,
@@ -220,7 +220,7 @@ class ProfileFragment : Fragment() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.title?.toString()) {
-                "Delete" -> listing.id?.let { deleteListing(it) }
+                "Delete" -> deleteListing(listing.id.toString())
                 "Edit" -> {
                     val intent = Intent(requireContext(), EditListing::class.java)
                     intent.putExtra("listing_id", listing.id)
@@ -228,7 +228,7 @@ class ProfileFragment : Fragment() {
                 }
                 "Share" -> com.example.exotrade.utils.ShareUtils.shareListingAsImage(
                     requireActivity(),
-                    listing.id ?: "",
+                    listing.id.toString(),
                     listing.commonName,
                     listing.scientificName,
                     listing.price,

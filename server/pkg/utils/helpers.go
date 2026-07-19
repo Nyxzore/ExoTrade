@@ -48,3 +48,10 @@ func FormatAge(days *int) string {
 	}
 	return fmt.Sprintf("%.1f years", years)
 }
+
+func DerefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
