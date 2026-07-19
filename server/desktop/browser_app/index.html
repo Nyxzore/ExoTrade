@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExoTrade Desktop</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header id="main-header" class="hidden">
+            <div class="nav-container">
+                <div class="logo">Exo<span>Trade</span></div>
+                <nav>
+                    <a href="#discovery">Discovery</a>
+                    <a href="#breeding">Breeding</a>
+                    <a href="#profile">Profile</a>
+                </nav>
+                <div class="user-actions">
+                    <button id="btn-logout">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main id="content">
+            <!-- Dynamic content injected here -->
+            <div class="loader">Loading ExoTrade...</div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-container" class="hidden">
+        <div id="modal-content"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

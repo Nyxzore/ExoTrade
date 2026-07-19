@@ -1,0 +1,219 @@
+:root {
+    --brand-orange: #FF6B00;
+    --brand-orange-light: #FFB347;
+    --bg-dark: #121212;
+    --surface: #1E1E1E;
+    --surface-light: #2C2C2C;
+    --text-main: #FFFFFF;
+    --text-muted: #A0A0A0;
+    --error: #CF6679;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.hidden { display: none !important; }
+
+header {
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--surface-light);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.logo span { color: var(--brand-orange); }
+
+nav { display: flex; gap: 2rem; }
+
+nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+nav a:hover, nav a.active {
+    color: var(--brand-orange);
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* Auth Pages */
+.auth-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--surface);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.auth-container h1 { margin-bottom: 1.5rem; text-align: center; }
+
+.form-group { margin-bottom: 1.25rem; }
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: var(--bg-dark);
+    border: 1px solid var(--surface-light);
+    border-radius: 8px;
+    color: white;
+    font-family: inherit;
+}
+
+input:focus {
+    border-color: var(--brand-orange);
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 1rem;
+    background: var(--brand-orange);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+button:hover { background: #E66000; }
+button:active { transform: scale(0.98); }
+
+.auth-switch {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-switch span {
+    color: var(--brand-orange);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Feed */
+.feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.listing-card {
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    border: 1px solid var(--surface-light);
+    cursor: pointer;
+    position: relative;
+}
+
+.listing-card:hover { transform: translateY(-5px); }
+
+.listing-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: crop;
+    background: #000;
+}
+
+.listing-info { padding: 1.25rem; }
+
+.listing-info h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+
+.scientific-name {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.price {
+    color: var(--brand-orange);
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.unverified-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    padding: 4px;
+    border-radius: 50%;
+    width: 28dp;
+    height: 28dp;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--brand-orange-light);
+}
+
+.loader {
+    text-align: center;
+    margin-top: 100px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Profile */
+.profile-header {
+    background: var(--surface);
+    padding: 3rem;
+    border-radius: 24px;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--brand-orange);
+}

@@ -35,7 +35,9 @@ func main() {
 	r.StaticFile("/", "./index.html")
 	r.StaticFile("/logo.png", "./logo.png")
 	r.StaticFile("/get-app", "./get-app.html")
-	r.StaticFile("/exotrade-api-docs.html", "./exotrade-api-docs.html")
+
+	// Desktop Web App
+	r.Static("/desktop", "./desktop/browser_app")
 
 	// Deep Link / Share redirects
 	r.GET("/listing/:id", func(c *gin.Context) {
@@ -48,10 +50,6 @@ func main() {
 	// API Routes
 	api := r.Group("/")
 	{
-		// Obsidian Graph (Public for now)
-		api.GET("/get_graph_data", handlers.GetGraphData)
-		api.GET("/get_note_content", handlers.GetNoteContent)
-
 		// Core
 		api.GET("/core/get_versions", handlers.GetVersions)
 
@@ -65,6 +63,10 @@ func main() {
 		protected.Use(middleware.AppVersionCheck())
 		protected.Use(middleware.AuthRequired())
 		{
+			// Obsidian Graph (Authenticated only)
+			protected.GET("/get_graph_data", handlers.GetGraphData)
+			protected.GET("/get_note_content", handlers.GetNoteContent)
+
 			protected.POST("/core/report_item", handlers.ReportItem)
 			protected.POST("/profile/get_profile", handlers.GetProfile)
 			protected.POST("/profile/update_profile", handlers.UpdateProfile)
